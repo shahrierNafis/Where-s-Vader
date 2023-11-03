@@ -1,48 +1,154 @@
 import "./App.css";
 import React, { useRef } from "react";
-import Magnifier, { showMagnifier } from "./components/Magnifier";
+import Magnifier from "./components/Magnifier";
 
 import { Signal, signal } from "@preact/signals-react";
-export const coordinates: Signal<{
-  imageX?: number;
-  imageY?: number;
-  x?: number;
-  y?: number;
-  height?: number;
-  width?: number;
-}> = signal({});
+const coordinates: Signal<Coordinates> = signal({ x: 0, y: 0 });
+const magnifierState = signal({ used: true, visible: true, aim: false });
 
 function App() {
-  const img = useRef(null);
-  function name() {
-    alert(coordinates.value.imageX + " " + coordinates.value.imageY);
+  const img: React.RefObject<HTMLImageElement> = useRef(null);
+
+  const magnifierDiameter =
+    screen.width < screen.height ? screen.width * 0.45 : screen.height * 0.45;
+
+  const lastTouch = useRef<{
+    event?: React.TouchEvent<HTMLImageElement>;
+    wasMoved?: boolean;
+    coordinates?: Coordinates;
+  }>({});
+
+  function onClick() {
+    // do nothing if aim is  on
+    if (magnifierState.value.aim) {
+      return;
+    } else {
+      alert(JSON.stringify(coordinates.value));
+    }
   }
+
+  function onMouseEnter() {
+    magnifierState.value.visible = true;
+  }
+
   function onMouseMove(e: React.MouseEvent<HTMLImageElement>) {
+    // do nothing if aim is on
+    if (magnifierState.value.aim) return;
+
+    // image position relative to the viewport
     const { left, top, width, height } = (
-      e.target as HTMLTextAreaElement
+      img.current as HTMLImageElement
     ).getBoundingClientRect();
 
+    // image position relative to the document
+    const imageLeft = left + window.scrollX;
+    const imageTop = top + window.scrollY;
+
+    // cursor position relative to the document
     const { pageX, pageY } = e;
-    // calculate cursor position on the image
-    const x = pageX - left - window.pageXOffset;
-    const y = pageY - top - window.pageYOffset;
+    const x = pageX - imageLeft;
+    const y = pageY - imageTop;
+    // cursor position relative to the image
+    const imageX = Math.round(((pageX - imageLeft) / width) * 100);
+    const imageY = Math.round(((pageY - imageTop) / height) * 100);
     coordinates.value = {
-      imageX: Math.round((pageX / width) * 100),
-      imageY: Math.round((pageY / height) * 100),
+      imageX,
+      imageY,
       x,
       y,
       height,
       width,
     };
   }
-  function onMouseEnter() {
-    showMagnifier.value.visible = true;
-  }
   function onMouseLeave() {
-    showMagnifier.value.visible = false;
+    magnifierState.value.visible = false;
+  }
+
+  function inRadius(e: React.TouchEvent<HTMLImageElement> | undefined) {
+    if (!e) return false;
+    const inRadiusX =
+      e.touches[0].pageX < coordinates.value.x + magnifierDiameter / 2 &&
+      e.touches[0].pageX > coordinates.value.x - magnifierDiameter / 2;
+    const inRadiusY =
+      e.touches[0].pageY < coordinates.value.y + magnifierDiameter / 2 &&
+      e.touches[0].pageY > coordinates.value.y - magnifierDiameter / 2;
+    if (inRadiusX && inRadiusY) {
+      return true;
+    }
+  }
+  function getCoordinatesTouch(
+    e: React.TouchEvent<HTMLImageElement>
+  ): Coordinates {
+    // image position relative to the viewport
+    const { left, top, width, height } = (
+      img.current as HTMLImageElement
+    ).getBoundingClientRect();
+
+    // image position relative to the document
+    const imageLeft = left + window.scrollX;
+    const imageTop = top + window.scrollY;
+
+    // cursor position relative to the document
+    const { pageX, pageY } = e.touches[0];
+    let x, y;
+    // check if magnifier was used
+    if (magnifierState.value.used) {
+      x = pageX - imageLeft - magnifierDiameter / 2;
+      y = pageY - imageTop - magnifierDiameter / 2;
+    } else {
+      x = pageX - imageLeft;
+      y = pageY - imageTop;
+    }
+
+    // cursor position relative to the image
+    const imageX = Math.round((x / width) * 100);
+    const imageY = Math.round((y / height) * 100);
+    return {
+      imageX,
+      imageY,
+      x,
+      y,
+      height,
+      width,
+    };
+  }
+  function setCoordinatesTouch(e: React.TouchEvent<HTMLImageElement>) {
+    // save the event
+    lastTouch.current.event = e;
+    // move the magnifier if not in radius
+    if (!inRadius(e)) {
+      // save coordinates
+      lastTouch.current.coordinates = getCoordinatesTouch(e);
+
+      coordinates.value = lastTouch.current.coordinates;
+    }
+  }
+  function onTouchStart(e: React.TouchEvent<HTMLImageElement>) {
+    magnifierState.value.aim = true;
+    lastTouch.current.wasMoved = false;
+    setCoordinatesTouch(e);
+  }
+
+  function onTouchMove(e: React.TouchEvent<HTMLImageElement>) {
+    lastTouch.current.wasMoved = true;
+    setCoordinatesTouch(e);
+  }
+  function onTouchEnd() {
+    if (lastTouch.current) {
+      // if last touch was in radius
+      if (inRadius(lastTouch.current.event) || !magnifierState.value.used) {
+        // And was not moved(a tap)
+        if (!lastTouch.current.wasMoved) {
+          alert(JSON.stringify(lastTouch.current.coordinates));
+        }
+      } // if last touch was not in radius or was moved
+      else if (lastTouch.current.coordinates) {
+        coordinates.value = lastTouch.current.coordinates;
+      }
+    }
   }
   function toggleMagnifier() {
-    showMagnifier.value.used = !showMagnifier.value.used;
+    magnifierState.value.used = !magnifierState.value.used;
   }
   return (
     <>
@@ -59,15 +165,19 @@ function App() {
           ref={img}
           alt=""
           className="vw-100"
-          onClick={name}
-          onMouseMove={onMouseMove}
+          onClick={onClick}
           onMouseEnter={onMouseEnter}
+          onMouseMove={onMouseMove}
           onMouseLeave={onMouseLeave}
+          onTouchStart={onTouchStart}
+          onTouchMove={onTouchMove}
+          onTouchEnd={onTouchEnd}
         />
         <Magnifier
           src={"./wheres-vader.jpg"}
-          magnifierHeight={(coordinates.value.height || 5000) * 0.1}
-          magnifierWidth={(coordinates.value.height || 5000) * 0.1}
+          magnifierDiameter={magnifierDiameter}
+          coordinates={coordinates}
+          magnifierState={magnifierState}
         />
       </div>
     </>

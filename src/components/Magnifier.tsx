@@ -1,44 +1,53 @@
-import { signal } from "@preact/signals-react";
-import { coordinates } from "../App";
-export const showMagnifier = signal({ used: true, visible: false });
-
 function Magnifier({
   src,
-  magnifierHeight = 100,
-  magnifierWidth = 100,
+  magnifierDiameter = 100,
   zoomLevel = 1.5,
+  coordinates,
+  magnifierState,
 }: {
   src: string;
-  magnifierHeight?: number;
-  magnifierWidth?: number;
+  magnifierDiameter?: number;
   zoomLevel?: number;
+  coordinates: { value: Coordinates };
+  magnifierState: { value: { used: boolean; visible: boolean; aim: boolean } };
 }) {
+  // Function Start
+
+  // get coordinates
   const {
     value: { imageX, imageY, height, width, x, y },
   } = coordinates;
-  // if no coordinates are set, don't show magnifier
+  // get magnifier state
+  const {
+    value: { used, visible, aim },
+  } = magnifierState;
+  // if coordinates are not set, don't show magnifier
   if (!(imageX && imageY && height && width && x && y)) return;
+
+  function onClick() {
+    alert(JSON.stringify(coordinates.value));
+  }
   return (
-    <div
+    <button
+      onClick={onClick}
       style={{
         padding: "0px",
-        display:
-          showMagnifier.value.used && showMagnifier.value.visible
-            ? "grid"
-            : "none",
-        gridTemplateAreas: `"a b"
-        "c d"`,
+        display: used && visible ? "flex" : "none",
+        alignContent: "center",
+        justifyContent: "center",
+        alignItems: "center",
         position: "absolute",
         // prevent magnifier blocks the mousemove event of img
         pointerEvents: "none",
         // set size of magnifier
-        height: `${magnifierHeight}px`,
-        width: `${magnifierWidth}px`,
+        height: `${magnifierDiameter}px`,
+        width: `${magnifierDiameter}px`,
         // move element center to cursor pos
-        top: `${y - magnifierHeight / 2}px`,
-        left: `${x - magnifierWidth / 2}px`,
+        top: `${y - magnifierDiameter / 2}px`,
+        left: `${x - magnifierDiameter / 2}px`,
         opacity: "1", // reduce opacity so you can verify position
         borderRadius: "100%",
+        border: "1px solid black",
         backgroundColor: "white",
         backgroundImage: `url('${src}')`,
         backgroundRepeat: "no-repeat",
@@ -47,16 +56,13 @@ function Magnifier({
         backgroundSize: `${width * zoomLevel}px ${height * zoomLevel}px`,
 
         //calculate position of zoomed image.
-        backgroundPositionX: `${-x * zoomLevel + magnifierWidth / 2}px`,
-        backgroundPositionY: `${-y * zoomLevel + magnifierHeight / 2}px`,
+        backgroundPositionX: `${-x * zoomLevel + magnifierDiameter / 2}px`,
+        backgroundPositionY: `${-y * zoomLevel + magnifierDiameter / 2}px`,
       }}
     >
-      <div style={{ gridArea: "a", borderRight: "2px black solid" }}></div>
-      <div style={{ gridArea: "b", borderBottom: "2px black solid" }}></div>
-      <div style={{ gridArea: "c", borderTop: "2px black solid" }}></div>
-      <div style={{ gridArea: "d", borderLeft: "2px black solid" }}></div>
-    </div>
+      {/* show aim */}
+      {aim && <img src="./aim.svg" alt="" />}
+    </button>
   );
 }
-
 export default Magnifier;
