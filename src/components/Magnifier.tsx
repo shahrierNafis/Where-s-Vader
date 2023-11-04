@@ -1,14 +1,14 @@
+import { coordinates } from "../Types/Coordinates";
+
 function Magnifier({
   src,
   magnifierDiameter = 100,
   zoomLevel = 1.5,
-  coordinates,
   magnifierState,
 }: {
   src: string;
   magnifierDiameter?: number;
   zoomLevel?: number;
-  coordinates: { value: Coordinates };
   magnifierState: { value: { used: boolean; visible: boolean; aim: boolean } };
 }) {
   // Function Start
@@ -24,12 +24,14 @@ function Magnifier({
   // if coordinates are not set, don't show magnifier
   if (!(imageX && imageY && height && width && x && y)) return;
 
-  function onClick() {
-    alert(JSON.stringify(coordinates.value));
+  function onTouchStart() {
+    console.log("====================================");
+    console.log("hit");
+    console.log("====================================");
   }
   return (
-    <button
-      onClick={onClick}
+    <div
+      onTouchMove={onTouchStart}
       style={{
         padding: "0px",
         display: used && visible ? "flex" : "none",
@@ -62,7 +64,7 @@ function Magnifier({
     >
       {/* show aim */}
       {aim && <img src="./aim.svg" alt="" />}
-    </button>
+    </div>
   );
 }
 export default Magnifier;
