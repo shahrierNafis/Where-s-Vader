@@ -107,6 +107,7 @@ function moveDirectly(
   if (magnifier.y && newCoordinates.y && oldCoordinates.y) {
     magnifier.y += newCoordinates.y - oldCoordinates.y;
   }
+
   if (magnifier.imageX && newCoordinates.imageX && oldCoordinates.imageX) {
     magnifier.imageX += newCoordinates.imageX - oldCoordinates.imageX;
   }
@@ -114,6 +115,12 @@ function moveDirectly(
     magnifier.imageY += newCoordinates.imageY - oldCoordinates.imageY;
   }
 
+  if (magnifier.clientX && newCoordinates.x && oldCoordinates.x) {
+    magnifier.clientX += newCoordinates.x - oldCoordinates.x;
+  }
+  if (magnifier.clientY && newCoordinates.y && oldCoordinates.y) {
+    magnifier.clientY += newCoordinates.y - oldCoordinates.y;
+  }
   // Move the magnifier
   coordinates.value = { ...magnifier };
   lastTouch.value.coordinates = { ...magnifier };

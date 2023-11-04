@@ -4,13 +4,13 @@ import Magnifier from "./components/Magnifier";
 import { signal } from "@preact/signals-react";
 import { coordinates } from "./Types/Coordinates";
 import touchHandlers from "./touchHandlers";
+import { autoScroll } from "./autoscroll";
 const magnifierState = signal({ used: true, visible: true, aim: false });
 const magnifierDiameter =
   screen.width < screen.height ? screen.width * 0.45 : screen.height * 0.45;
 
 function App() {
   const img: React.RefObject<HTMLImageElement> = useRef(null);
-
   function onClick() {
     // do nothing if aim is  on
     if (magnifierState.value.aim) {
@@ -65,6 +65,7 @@ function App() {
 
   function onTouchMove(e: React.TouchEvent<HTMLImageElement>) {
     touchHandlers.onTouchMove(e, magnifierState);
+    autoScroll();
   }
   function onTouchEnd() {
     touchHandlers.onTouchEnd(magnifierState);
