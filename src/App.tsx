@@ -1,6 +1,7 @@
 import "./App.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 
+import DropDown from "./components/DropDown";
 import Image from "./components/Image";
 import Magnifier from "./components/Magnifier";
 import ScrollUp from "./components/ScrollUp";
@@ -10,6 +11,7 @@ function App() {
     <>
       <Magnifier.Button></Magnifier.Button>
       <Image></Image>
+      <DropDown></DropDown>
       <ScrollUp></ScrollUp>
       <ScrollDown></ScrollDown>
     </>

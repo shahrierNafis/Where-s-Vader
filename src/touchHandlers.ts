@@ -1,6 +1,7 @@
 import { coordinates, Coordinates } from "./Signals/Coordinates";
 import { magnifierState } from "./Signals/magnifierState";
 import { signal } from "@preact/signals-react";
+import { dropDownState } from "./Signals/DropDownState";
 
 const magnifierDiameter =
   window.innerWidth < window.innerHeight
@@ -128,7 +129,7 @@ function setCoordinatesTouch(e: React.TouchEvent<HTMLImageElement>) {
   // If not in radius
   if (!inRadius(e)) {
     // Save coordinates
-    lastTouch.value.coordinates = calcCoordinates(e, magnifierState);
+    lastTouch.value.coordinates = calcCoordinates(e);
     // Move the magnifier
     coordinates.value = lastTouch.value.coordinates;
   } else {
@@ -154,7 +155,7 @@ function onTouchMove(e: React.TouchEvent<HTMLImageElement>) {
   // mark last touch as moved
   lastTouch.value.wasMoved = true;
   setCoordinatesTouch(e);
-  console.log(JSON.stringify(lastTouch.value.coordinates));
+  dropDownState.value = { visible: false };
 }
 function onTouchEnd() {
   if (lastTouch.value) {
@@ -162,7 +163,8 @@ function onTouchEnd() {
     if (inRadius(lastTouch.value.event) || !magnifierState.value.used) {
       // And was not moved(a tap)
       if (!lastTouch.value.wasMoved) {
-        alert(JSON.stringify(lastTouch.value.coordinates));
+        dropDownState.value = { visible: true };
+        // alert(JSON.stringify(lastTouch.value.coordinates));
       }
     }
   }
