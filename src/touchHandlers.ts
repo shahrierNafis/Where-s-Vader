@@ -1,8 +1,11 @@
-import { coordinates, Coordinates } from "./Types/Coordinates";
-const magnifierDiameter =
-  screen.width < screen.height ? screen.width * 0.45 : screen.height * 0.45;
-
+import { coordinates, Coordinates } from "./Signals/Coordinates";
+import { magnifierState } from "./Signals/magnifierState";
 import { signal } from "@preact/signals-react";
+
+const magnifierDiameter =
+  window.innerWidth < window.innerHeight
+    ? window.innerWidth * 0.45
+    : window.innerHeight * 0.45;
 
 // helps touch end event to work
 const lastTouch = signal<{
@@ -11,7 +14,6 @@ const lastTouch = signal<{
   coordinates?: Coordinates;
   inRadiusCoordinates?: Coordinates;
 }>({});
-
 /**
  * Checks if the touch event is within the magnifier radius.
  * @param e - The touch event.
@@ -43,10 +45,7 @@ function inRadius(e: React.TouchEvent<HTMLImageElement> | undefined): boolean {
  * @param magnifierState - The state of the magnifier.
  * @returns The calculated coordinates.
  */
-function calcCoordinates(
-  e: React.TouchEvent<HTMLImageElement>,
-  magnifierState?: MagnifierState
-): Coordinates {
+function calcCoordinates(e: React.TouchEvent<HTMLImageElement>): Coordinates {
   // Get the image position relative to the viewport
   const { left, top, width, height } = (
     e.target as HTMLImageElement
@@ -81,8 +80,6 @@ function calcCoordinates(
     y,
     height,
     width,
-    clientX: e.touches[0].clientX,
-    clientY: e.touches[0].clientY,
   };
 }
 
@@ -114,13 +111,6 @@ function moveDirectly(
   if (magnifier.imageY && newCoordinates.imageY && oldCoordinates.imageY) {
     magnifier.imageY += newCoordinates.imageY - oldCoordinates.imageY;
   }
-
-  if (magnifier.clientX && newCoordinates.x && oldCoordinates.x) {
-    magnifier.clientX += newCoordinates.x - oldCoordinates.x;
-  }
-  if (magnifier.clientY && newCoordinates.y && oldCoordinates.y) {
-    magnifier.clientY += newCoordinates.y - oldCoordinates.y;
-  }
   // Move the magnifier
   coordinates.value = { ...magnifier };
   lastTouch.value.coordinates = { ...magnifier };
@@ -131,10 +121,7 @@ function moveDirectly(
  * @param e - The touch event.
  * @param magnifierState - The state of the magnifier.
  */
-function setCoordinatesTouch(
-  e: React.TouchEvent<HTMLImageElement>,
-  magnifierState: MagnifierState
-) {
+function setCoordinatesTouch(e: React.TouchEvent<HTMLImageElement>) {
   // Save the event
   lastTouch.value.event = e;
 
@@ -154,27 +141,22 @@ function setCoordinatesTouch(
     lastTouch.value.inRadiusCoordinates = calcCoordinates(e);
   }
 }
-function onTouchStart(
-  e: React.TouchEvent<HTMLImageElement>,
-  magnifierState: MagnifierState
-) {
+function onTouchStart(e: React.TouchEvent<HTMLImageElement>) {
   // turn on aim
   magnifierState.value.aim = true;
   // mark last touch as not moved
   lastTouch.value.wasMoved = false;
   // set coordinates
-  setCoordinatesTouch(e, magnifierState);
+  setCoordinatesTouch(e);
 }
 
-function onTouchMove(
-  e: React.TouchEvent<HTMLImageElement>,
-  magnifierState: MagnifierState
-) {
+function onTouchMove(e: React.TouchEvent<HTMLImageElement>) {
   // mark last touch as moved
   lastTouch.value.wasMoved = true;
-  setCoordinatesTouch(e, magnifierState);
+  setCoordinatesTouch(e);
+  console.log(JSON.stringify(lastTouch.value.coordinates));
 }
-function onTouchEnd(magnifierState: MagnifierState) {
+function onTouchEnd() {
   if (lastTouch.value) {
     // if last touch was in radius
     if (inRadius(lastTouch.value.event) || !magnifierState.value.used) {

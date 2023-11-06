@@ -1,15 +1,14 @@
-import { coordinates } from "../Types/Coordinates";
+import { coordinates } from "../Signals/Coordinates";
+import { magnifierState } from "../Signals/magnifierState";
 
 function Magnifier({
   src,
   magnifierDiameter = 100,
   zoomLevel = 1.5,
-  magnifierState,
 }: {
   src: string;
   magnifierDiameter?: number;
   zoomLevel?: number;
-  magnifierState: { value: { used: boolean; visible: boolean; aim: boolean } };
 }) {
   // Function Start
 
@@ -24,14 +23,8 @@ function Magnifier({
   // if coordinates are not set, don't show magnifier
   if (!(imageX && imageY && height && width && x && y)) return;
 
-  function onTouchStart() {
-    console.log("====================================");
-    console.log("hit");
-    console.log("====================================");
-  }
   return (
     <div
-      onTouchMove={onTouchStart}
       style={{
         padding: "0px",
         display: used && visible ? "flex" : "none",
@@ -67,4 +60,31 @@ function Magnifier({
     </div>
   );
 }
+Magnifier.Button = function () {
+  function toggleMagnifier() {
+    magnifierState.value = {
+      ...magnifierState.value,
+      used: !magnifierState.value.used,
+    };
+  }
+  return (
+    <>
+      {magnifierState.value.used ? (
+        <button
+          className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800"
+          onClick={toggleMagnifier}
+        >
+          magnifier: on
+        </button>
+      ) : (
+        <button
+          onClick={toggleMagnifier}
+          className="py-2.5 px-5 mr-2 mb-2 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700"
+        >
+          magnifier: off
+        </button>
+      )}
+    </>
+  );
+};
 export default Magnifier;
