@@ -4,3 +4,16 @@
 #root {
   overflow-x: hidden;
 }
+@font-face {
+  font-family: "starjhol";
+  src: local("starjhol"), url("/fonts/Starjhol.ttf") format("woff");
+}
+@font-face {
+  font-family: "tradeGothicLTBold";
+  src: local("tradeGothicLTBold"),
+    url("/fonts/Trade Gothic LT Bold.ttf") format("woff");
+}
+@font-face {
+  font-family: "starjedi";
+  src: local("starjedi"), url("/fonts/Starjedi.ttf") format("woff");
+}
