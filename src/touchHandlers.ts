@@ -144,9 +144,13 @@ function setCoordinatesTouch(e: React.TouchEvent<HTMLImageElement>) {
 }
 function onTouchStart(e: React.TouchEvent<HTMLImageElement>) {
   // turn on aim
-  magnifierState.value.aim = true;
+  if (!magnifierState.value.aim) {
+    magnifierState.value = { ...magnifierState.value, aim: true };
+  }
+
   // mark last touch as not moved
   lastTouch.value.wasMoved = false;
+  dropDownState.value = { visible: false };
   // set coordinates
   setCoordinatesTouch(e);
 }
@@ -154,8 +158,8 @@ function onTouchStart(e: React.TouchEvent<HTMLImageElement>) {
 function onTouchMove(e: React.TouchEvent<HTMLImageElement>) {
   // mark last touch as moved
   lastTouch.value.wasMoved = true;
-  setCoordinatesTouch(e);
   dropDownState.value = { visible: false };
+  setCoordinatesTouch(e);
 }
 function onTouchEnd() {
   if (lastTouch.value) {
@@ -163,7 +167,9 @@ function onTouchEnd() {
     if (inRadius(lastTouch.value.event) || !magnifierState.value.used) {
       // And was not moved(a tap)
       if (!lastTouch.value.wasMoved) {
-        dropDownState.value = { visible: true };
+        setTimeout(() => {
+          dropDownState.value = { visible: true };
+        }, 100);
         // alert(JSON.stringify(lastTouch.value.coordinates));
       }
     }

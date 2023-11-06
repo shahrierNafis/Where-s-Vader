@@ -3,13 +3,16 @@ import { coordinates } from "../Signals/Coordinates";
 import { dropDownState } from "../Signals/DropDownState";
 import Target from "./Target";
 import server from "../server";
+
 function DropDown() {
   function onClick(id: string) {
+    console.log("clicked");
+
     const { imageX, imageY } = coordinates.value;
     if (imageX && imageY) {
       server.capture(id, imageX, imageY);
     }
-    dropDownState.value = { visible: false };
+    dropDownState.value.visible = false;
   }
 
   return (
@@ -20,6 +23,7 @@ function DropDown() {
             position: "absolute",
             top: coordinates.value.y,
             left: coordinates.value.x,
+            pointerEvents: dropDownState.value.visible ? "auto" : "none",
           }}
         >
           <ListGroup>
