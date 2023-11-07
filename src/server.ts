@@ -1,4 +1,4 @@
-import { signal } from "@preact/signals-react";
+import { signal, Signal } from "@preact/signals-react";
 const list = signal([
   {
     name: "a",
@@ -16,6 +16,10 @@ const list = signal([
     img: "http://192.168.1.7:8000/Screenshot_20231106_093030.png",
   },
 ]);
+const time: Signal<{ start: Date | null; end: Date | null }> = signal({
+  start: null,
+  end: null,
+});
 function updateList() {}
 function capture(id: string, imageX: number, imageY: number) {
   list.value = list.value.filter((target) => {
@@ -25,5 +29,10 @@ function capture(id: string, imageX: number, imageY: number) {
     return true;
   });
 }
-function start() {}
-export default { updateList, capture, list, start };
+function start() {
+  time.value = {
+    start: new Date(),
+    end: null,
+  };
+}
+export default { updateList, capture, list, start, time };
