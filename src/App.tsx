@@ -7,11 +7,14 @@ import Magnifier from "./components/Magnifier";
 import ScrollUp from "./components/ScrollUp";
 import ScrollDown from "./components/ScrollDown";
 import Start from "./components/Start";
+import End from "./components/End";
+
 import Timer from "./components/Timer";
 function App() {
   return (
     <>
       <Start />
+      <End></End>
       <div className="flex">
         <Magnifier.Button />
         <Timer />

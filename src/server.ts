@@ -16,6 +16,10 @@ const list = signal([
     img: "http://192.168.1.7:8000/Screenshot_20231106_093030.png",
   },
 ]);
+const leaderboard = signal([
+  { name: "shahrier", time: 10000000 },
+  { name: "nafis" },
+]);
 const time: Signal<{ start: Date | null; end: Date | null }> = signal({
   start: null,
   end: null,
@@ -35,4 +39,12 @@ function start() {
     end: null,
   };
 }
-export default { updateList, capture, list, start, time };
+function submit(name: string) {
+  if (time.value.start) {
+    leaderboard.value.push({
+      name,
+      time: new Date().getTime() - time.value.start.getTime(),
+    });
+  }
+}
+export default { updateList, capture, list, start, time, submit };
