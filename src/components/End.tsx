@@ -1,8 +1,12 @@
 import background from "/background.jpg";
 import server from "../server";
 import { useRef } from "react";
+import { useNavigate } from "react-router-dom";
+
 const FS = screen.height > screen.width ? "vw" : "vh";
 function End() {
+  const navigate = useNavigate();
+
   const input: React.RefObject<HTMLInputElement> = useRef(null);
   return (
     <>
@@ -54,6 +58,7 @@ function End() {
               if (input?.current?.value) {
                 if (input?.current?.value?.length > 2) {
                   server.submit(input.current.value);
+                  navigate("/leader-board");
                 } else {
                   alert("Name must be at least 3 characters");
                 }
