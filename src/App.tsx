@@ -1,29 +1,18 @@
 import "./App.css";
 import "bootstrap/dist/css/bootstrap.min.css";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import Home from "./pages/Home";
 
-import DropDown from "./components/DropDown";
-import Image from "./components/Image";
-import Magnifier from "./components/Magnifier";
-import ScrollUp from "./components/ScrollUp";
-import ScrollDown from "./components/ScrollDown";
-import Start from "./components/Start";
-import End from "./components/End";
-
-import Timer from "./components/Timer";
 function App() {
   return (
     <>
-      <Start />
-      <End></End>
-      <div className="flex">
-        <Magnifier.Button />
-        <Timer />
-      </div>
-
-      <Image></Image>
-      <DropDown />
-      <ScrollUp />
-      <ScrollDown />
+      <BrowserRouter>
+        <Routes>
+          <Route path="/">
+            <Route index element={<Home />} />
+          </Route>
+        </Routes>
+      </BrowserRouter>
     </>
   );
 }
