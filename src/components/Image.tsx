@@ -8,7 +8,7 @@ import { dropDownState } from "../Signals/DropDownState";
 
 const magnifierDiameter =
   window.innerWidth < window.innerHeight
-    ? window.innerWidth * 0.45
+    ? window.innerWidth * 0.75
     : window.innerHeight * 0.45;
 function Image() {
   function onClick() {
@@ -30,6 +30,10 @@ function Image() {
     dropDownState.value.visible = false;
   }
   function onMouseLeave() {
+    // do nothing if aim is  on
+    if (magnifierState.value.aim) {
+      return;
+    }
     magnifierState.value.visible = false;
   }
 
@@ -40,8 +44,8 @@ function Image() {
   function onTouchMove(e: React.TouchEvent<HTMLImageElement>) {
     touchHandlers.onTouchMove(e);
   }
-  function onTouchEnd() {
-    touchHandlers.onTouchEnd();
+  function onTouchEnd(e: React.TouchEvent<HTMLImageElement>) {
+    touchHandlers.onTouchEnd(e);
   }
 
   return (

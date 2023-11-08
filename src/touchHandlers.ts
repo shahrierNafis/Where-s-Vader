@@ -5,15 +5,13 @@ import { dropDownState } from "./Signals/DropDownState";
 
 const magnifierDiameter =
   window.innerWidth < window.innerHeight
-    ? window.innerWidth * 0.45
+    ? window.innerWidth * 0.75
     : window.innerHeight * 0.45;
 
 // helps touch end event to work
 const lastTouch = signal<{
-  event?: React.TouchEvent<HTMLImageElement>;
   wasMoved?: boolean;
   coordinates?: Coordinates;
-  inRadiusCoordinates?: Coordinates;
 }>({});
 /**
  * Checks if the touch event is within the magnifier radius.
@@ -21,6 +19,7 @@ const lastTouch = signal<{
  * @returns True if the touch is within the magnifier radius, false otherwise.
  */
 function inRadius(e: React.TouchEvent<HTMLImageElement> | undefined): boolean {
+  // magnifier coordinate
   const { x, y } = coordinates.value;
 
   // If the touch event or coordinates are not available, return false
@@ -28,13 +27,23 @@ function inRadius(e: React.TouchEvent<HTMLImageElement> | undefined): boolean {
     return false;
   }
 
+  // get the new touch position from the touch event
+  ///////////////////////////////////////////////////////////////////////////////
+  const { left, top } = (e.target as HTMLImageElement).getBoundingClientRect();
+  // Get the image position relative to the document
+  const imageLeft = left + window.scrollX;
+  const imageTop = top + window.scrollY;
+  // Get the touch position relative to the document
+  const { pageX, pageY } = e.changedTouches[0];
+  const x2 = pageX - imageLeft;
+  const y2 = pageY - imageTop;
+  ///////////////////////////////////////////////////////////////////////////////
+
   // Calculate the boundaries of the magnifier radius
   const inRadiusX =
-    e.touches[0].pageX < x + magnifierDiameter / 2 &&
-    e.touches[0].pageX > x - magnifierDiameter / 2;
+    x2 < x + magnifierDiameter / 2 && x2 > x - magnifierDiameter / 2;
   const inRadiusY =
-    e.touches[0].pageY < y + magnifierDiameter / 2 &&
-    e.touches[0].pageY > y - magnifierDiameter / 2;
+    y2 < y + magnifierDiameter / 2 && y2 > y - magnifierDiameter / 2;
 
   // Return true if the touch is within the magnifier radius, false otherwise
   return inRadiusX && inRadiusY;
@@ -114,7 +123,6 @@ function moveDirectly(
   }
   // Move the magnifier
   coordinates.value = { ...magnifier };
-  lastTouch.value.coordinates = { ...magnifier };
 }
 
 /**
@@ -123,23 +131,17 @@ function moveDirectly(
  * @param magnifierState - The state of the magnifier.
  */
 function setCoordinatesTouch(e: React.TouchEvent<HTMLImageElement>) {
-  // Save the event
-  lastTouch.value.event = e;
-
   // If not in radius
   if (!inRadius(e)) {
-    // Save coordinates
-    lastTouch.value.coordinates = calcCoordinates(e);
     // Move the magnifier
-    coordinates.value = lastTouch.value.coordinates;
+    coordinates.value = calcCoordinates(e);
   } else {
     // If in radius but the touch is moving
-    if (lastTouch.value.inRadiusCoordinates && lastTouch.value.wasMoved) {
+    if (lastTouch.value.coordinates && lastTouch.value.wasMoved) {
       // Move the magnifier
-      moveDirectly(lastTouch.value.inRadiusCoordinates, e);
-    }
-    // Save coordinates
-    lastTouch.value.inRadiusCoordinates = calcCoordinates(e);
+      moveDirectly(lastTouch.value.coordinates, e);
+    } // Save coordinates
+    lastTouch.value.coordinates = calcCoordinates(e);
   }
 }
 function onTouchStart(e: React.TouchEvent<HTMLImageElement>) {
@@ -150,7 +152,6 @@ function onTouchStart(e: React.TouchEvent<HTMLImageElement>) {
 
   // mark last touch as not moved
   lastTouch.value.wasMoved = false;
-  dropDownState.value = { visible: false };
   // set coordinates
   setCoordinatesTouch(e);
 }
@@ -158,21 +159,20 @@ function onTouchStart(e: React.TouchEvent<HTMLImageElement>) {
 function onTouchMove(e: React.TouchEvent<HTMLImageElement>) {
   // mark last touch as moved
   lastTouch.value.wasMoved = true;
-  dropDownState.value = { visible: false };
   setCoordinatesTouch(e);
 }
-function onTouchEnd() {
+function onTouchEnd(e: React.TouchEvent<HTMLImageElement>) {
   if (lastTouch.value) {
     // if last touch was in radius
-    if (inRadius(lastTouch.value.event) || !magnifierState.value.used) {
+    if (inRadius(e) || !magnifierState.value.used) {
       // And was not moved(a tap)
       if (!lastTouch.value.wasMoved) {
         setTimeout(() => {
           dropDownState.value = { visible: true };
         }, 100);
-        // alert(JSON.stringify(lastTouch.value.coordinates));
       }
     }
   }
+  lastTouch.value.coordinates = {};
 }
 export default { onTouchStart, onTouchMove, onTouchEnd };
