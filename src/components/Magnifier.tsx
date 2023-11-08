@@ -44,7 +44,7 @@ function Magnifier({
         left: `${x - magnifierDiameter / 2}px`,
         opacity: "1", // reduce opacity so you can verify position
         borderRadius: "100%",
-        border: "1px solid black",
+        border: ".2rem solid black",
         backgroundColor: "white",
         backgroundImage: `url('${src}')`,
         backgroundRepeat: "no-repeat",

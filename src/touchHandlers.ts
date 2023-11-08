@@ -1,12 +1,7 @@
 import { coordinates, Coordinates } from "./Signals/Coordinates";
-import { magnifierState } from "./Signals/magnifierState";
+import { magnifierState, magnifierDiameter } from "./Signals/magnifierState";
 import { signal } from "@preact/signals-react";
 import { dropDownState } from "./Signals/DropDownState";
-
-const magnifierDiameter =
-  window.innerWidth < window.innerHeight
-    ? window.innerWidth * 0.75
-    : window.innerHeight * 0.45;
 
 // helps touch end event to work
 const lastTouch = signal<{
@@ -68,11 +63,14 @@ function calcCoordinates(e: React.TouchEvent<HTMLImageElement>): Coordinates {
   // Get the cursor position relative to the document
   const { pageX, pageY } = e.touches[0];
   let x, y;
-
+  // Get the cursor position relative to the document
+  let { clientX, clientY } = e.touches[0];
   // Check if the magnifier was used
   if (magnifierState?.value?.used) {
     x = pageX - imageLeft - magnifierDiameter / 2;
     y = pageY - imageTop - magnifierDiameter / 2;
+    clientX -= magnifierDiameter / 2;
+    clientY -= magnifierDiameter / 2;
   } else {
     x = pageX - imageLeft;
     y = pageY - imageTop;
@@ -90,6 +88,8 @@ function calcCoordinates(e: React.TouchEvent<HTMLImageElement>): Coordinates {
     y,
     height,
     width,
+    clientX,
+    clientY,
   };
 }
 
@@ -120,6 +120,12 @@ function moveDirectly(
   }
   if (magnifier.imageY && newCoordinates.imageY && oldCoordinates.imageY) {
     magnifier.imageY += newCoordinates.imageY - oldCoordinates.imageY;
+  }
+  if (magnifier.clientX && newCoordinates.clientX && oldCoordinates.clientX) {
+    magnifier.clientX += newCoordinates.clientX - oldCoordinates.clientX;
+  }
+  if (magnifier.clientY && newCoordinates.clientY && oldCoordinates.clientY) {
+    magnifier.clientY += newCoordinates.clientY - oldCoordinates.clientY;
   }
   // Move the magnifier
   coordinates.value = { ...magnifier };

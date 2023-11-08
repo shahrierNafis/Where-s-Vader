@@ -16,7 +16,7 @@ function Target({
           display: "flex",
           alignItems: "center",
           border: "1px solid black",
-          fontSize: targetHeight / 1.5,
+          fontSize: targetHeight / 3,
         }}
       >
         <img src={target.img} alt={target.name} className="h-100" />

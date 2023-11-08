@@ -8,4 +8,6 @@ export type Coordinates = {
   y?: number;
   height?: number;
   width?: number;
+  clientX?: number;
+  clientY?: number;
 };

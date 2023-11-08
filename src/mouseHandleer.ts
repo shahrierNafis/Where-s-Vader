@@ -21,6 +21,10 @@ function onMouseMove(e: React.MouseEvent<HTMLImageElement>) {
   // cursor position relative to the image
   const imageX = Math.round(((pageX - imageLeft) / width) * 100);
   const imageY = Math.round(((pageY - imageTop) / height) * 100);
+
+  // cursor position relative to the viewport
+  const { clientX, clientY } = e;
+
   coordinates.value = {
     imageX,
     imageY,
@@ -28,6 +32,8 @@ function onMouseMove(e: React.MouseEvent<HTMLImageElement>) {
     y,
     height,
     width,
+    clientX,
+    clientY,
   };
 }
 export default { onMouseMove };

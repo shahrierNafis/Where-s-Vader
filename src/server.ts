@@ -2,17 +2,17 @@ import { signal, Signal } from "@preact/signals-react";
 
 const preList = [
   {
-    name: "a",
+    name: "Obiwan Kenobi",
     _id: "12345",
     img: "http://192.168.1.7:8000/Screenshot_20231106_093030.png",
   },
   {
-    name: "b",
+    name: "Kylo Ren",
     _id: "67890",
     img: "http://192.168.1.7:8000/Screenshot_20231106_093030.png",
   },
   {
-    name: "c",
+    name: "Darth Vader",
     _id: "987654",
     img: "http://192.168.1.7:8000/Screenshot_20231106_093030.png",
   },

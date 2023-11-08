@@ -3,13 +3,9 @@ import Magnifier from "./Magnifier";
 import { coordinates } from "../Signals/Coordinates";
 import mouseHandler from "../mouseHandleer";
 import touchHandlers from "../touchHandlers";
-import { magnifierState } from "../Signals/magnifierState";
+import { magnifierState, magnifierDiameter } from "../Signals/magnifierState";
 import { dropDownState } from "../Signals/DropDownState";
 
-const magnifierDiameter =
-  window.innerWidth < window.innerHeight
-    ? window.innerWidth * 0.75
-    : window.innerHeight * 0.45;
 function Image() {
   function onClick() {
     // do nothing if aim is  on
