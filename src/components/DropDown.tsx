@@ -4,20 +4,20 @@ import { dropDownState } from "../Signals/DropDownState";
 import Target from "./Target";
 import server from "../server";
 import { useEffect, useRef } from "react";
-import { magnifierDiameter, magnifierState } from "../Signals/magnifierState";
+import { magnifierState } from "../Signals/magnifierState";
 const FS = screen.height > screen.width ? "vw" : "vh";
 
 function DropDown() {
   const dropDownRef: React.RefObject<HTMLDivElement> = useRef(null);
 
-  function onClick(id: string) {
-    console.log("clicked");
-
+  async function onClick(id: number) {
     const { imageX, imageY } = coordinates.value;
     if (imageX && imageY) {
-      server.capture(id, imageX, imageY);
+      if (await server.capture(id, imageX, imageY)) {
+        alert("Captured");
+      }
     }
-    dropDownState.value.visible = false;
+    dropDownState.value = { visible: false };
   }
 
   useEffect(() => {
@@ -103,9 +103,9 @@ function DropDown() {
             <ListGroup>
               {server.list.value.map((target) => (
                 <ListGroup.Item
-                  key={target._id}
+                  key={target.id}
                   onClick={() => {
-                    onClick(target._id);
+                    onClick(target.id);
                   }}
                 >
                   <Target target={target}></Target>

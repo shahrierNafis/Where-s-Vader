@@ -66,6 +66,7 @@ Magnifier.Button = function () {
   function toggleMagnifier() {
     magnifierState.value = {
       ...magnifierState.value,
+      aim: false,
       used: !magnifierState.value.used,
     };
   }

@@ -1,54 +1,90 @@
 import { signal, Signal } from "@preact/signals-react";
+import { jwtDecode } from "jwt-decode";
 
-const preList = [
-  {
-    name: "Obiwan Kenobi",
-    _id: "12345",
-    img: "http://192.168.1.7:8000/Screenshot_20231106_093030.png",
-  },
-  {
-    name: "Kylo Ren",
-    _id: "67890",
-    img: "http://192.168.1.7:8000/Screenshot_20231106_093030.png",
-  },
-  {
-    name: "Darth Vader",
-    _id: "987654",
-    img: "http://192.168.1.7:8000/Screenshot_20231106_093030.png",
-  },
-];
+const token = signal<string | null>(null);
 
-const list = signal(preList);
-const leaderBoard = signal([
-  { name: "shahrier", time: 100000 },
-  { name: "nafis", time: 1000000 },
+const list = signal<{ id: number; name: string; img: string }[]>([
+  { id: 0, name: "error", img: "" },
 ]);
-const time: Signal<{ start: Date | null; end: Date | null }> = signal({
+
+const time: Signal<{ start: Date | null }> = signal({
   start: null,
   end: null,
 });
-function updateList() {}
-function capture(id: string, imageX: number, imageY: number) {
-  list.value = list.value.filter((target) => {
-    if (target._id === id) {
-      return false;
-    }
-    return true;
-  });
-}
-function start() {
-  list.value = Array.from(preList);
+
+async function start() {
+  token.value = await (
+    await fetch(import.meta.env.VITE_API_URL + "/start", {
+      method: "POST",
+      mode: "cors",
+    })
+  ).json();
+  list.value = Array.from(
+    jwtDecode<JwtPayload>(token.value ? token.value : "").list
+  );
   time.value = {
     start: new Date(),
-    end: null,
   };
 }
-function submit(name: string) {
-  if (time.value.start) {
-    leaderBoard.value.push({
-      name,
-      time: new Date().getTime() - time.value.start.getTime(),
-    });
+
+async function capture(id: number, imageX: number, imageY: number) {
+  const response = await fetch(import.meta.env.VITE_API_URL + "/capture", {
+    method: "POST",
+    mode: "cors",
+
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      id,
+      x: imageX,
+      y: imageY,
+      token: token.value,
+    }),
+  });
+  if (response.ok) {
+    token.value = await response.json();
+    list.value = Array.from(
+      jwtDecode<JwtPayload>(token.value ? token.value : "").list
+    );
+    return true;
   }
+  return false;
 }
-export default { updateList, capture, list, start, time, submit, leaderBoard };
+
+function submit(name: string) {
+  fetch(import.meta.env.VITE_API_URL + "/submit", {
+    method: "POST",
+    mode: "cors",
+
+    headers: {
+      "Content-Type": "application/json",
+    },
+
+    body: JSON.stringify({
+      name,
+      token: token.value,
+    }),
+  });
+}
+async function getLeaderBoard() {
+  const leaderBoard = await (
+    await fetch(import.meta.env.VITE_API_URL + "/leader-board")
+  ).json();
+
+  return leaderBoard;
+}
+export default {
+  start,
+  capture,
+  submit,
+  list,
+  time,
+  getLeaderBoard,
+};
+interface JwtPayload {
+  name?: string;
+  start: Date;
+  end?: Date;
+  list: Array<{ name: string; id: number; img: string }>;
+}

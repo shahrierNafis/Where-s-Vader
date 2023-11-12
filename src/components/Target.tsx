@@ -5,7 +5,7 @@ const targetHeight =
 function Target({
   target,
 }: {
-  target: { _id: string; name: string; img: string };
+  target: { id: number; name: string; img: string };
 }) {
   return (
     <>
@@ -19,7 +19,11 @@ function Target({
           fontSize: targetHeight / 3,
         }}
       >
-        <img src={target.img} alt={target.name} className="h-100" />
+        <img
+          src={import.meta.env.VITE_API_URL + "/" + target.img}
+          alt={target.name}
+          className="h-100"
+        />
         <span>{target.name}</span>
       </div>
     </>

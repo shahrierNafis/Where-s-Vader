@@ -57,9 +57,9 @@ function Start() {
           </p>
           <button
             type="button"
-            onClick={() => {
+            onClick={async () => {
               visible.value = false;
-              server.start();
+              await server.start();
             }}
             style={{
               color: "white",

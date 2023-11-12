@@ -1,11 +1,38 @@
 import { Table } from "react-bootstrap";
 import server from "../server";
 import { useNavigate } from "react-router-dom";
+import { useEffect, useRef } from "react";
+import { createRoot } from "react-dom/client";
 
 const FS = screen.height > screen.width ? "vw" : "vh";
-
 function LeaderBoard() {
+  const tbody = useRef<HTMLTableSectionElement>(null);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    (async () => {
+      const leaderBoard: Array<{ name: string; time: Date }> =
+        await server.getLeaderBoard();
+
+      const list = leaderBoard.map((player, rank) => {
+        let time = "error";
+        if (player.time) {
+          time = new Date(player.time).toISOString().slice(11, 19);
+        }
+        return (
+          <>
+            <tr>
+              <td>{rank + 1}</td>
+              <td>{player.name}</td>
+              <td>{time}</td>
+            </tr>
+          </>
+        );
+      });
+      createRoot(tbody.current!).render(list);
+    })();
+    return () => {};
+  }, []);
 
   return (
     <>
@@ -37,23 +64,7 @@ function LeaderBoard() {
             <th>time</th>
           </tr>
         </thead>
-        <tbody>
-          {server.leaderBoard.value.map((player, rank) => {
-            let time = "error";
-            if (player.time) {
-              time = new Date(player.time).toISOString().slice(11, 19);
-            }
-            return (
-              <>
-                <tr>
-                  <td>{rank + 1}</td>
-                  <td>{player.name}</td>
-                  <td>{time}</td>
-                </tr>
-              </>
-            );
-          })}
-        </tbody>
+        <tbody ref={tbody}></tbody>
       </Table>
     </>
   );
