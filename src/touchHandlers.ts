@@ -108,25 +108,18 @@ function moveDirectly(
   const newCoordinates = calcCoordinates(e);
 
   // Calculate the difference between the old and new coordinates to move the magnifier
-  if (magnifier.x && newCoordinates.x && oldCoordinates.x) {
-    magnifier.x += newCoordinates.x - oldCoordinates.x;
-  }
-  if (magnifier.y && newCoordinates.y && oldCoordinates.y) {
-    magnifier.y += newCoordinates.y - oldCoordinates.y;
-  }
+  magnifier.x! += newCoordinates.x! - oldCoordinates.x!;
 
-  if (magnifier.imageX && newCoordinates.imageX && oldCoordinates.imageX) {
-    magnifier.imageX += newCoordinates.imageX - oldCoordinates.imageX;
-  }
-  if (magnifier.imageY && newCoordinates.imageY && oldCoordinates.imageY) {
-    magnifier.imageY += newCoordinates.imageY - oldCoordinates.imageY;
-  }
-  if (magnifier.clientX && newCoordinates.clientX && oldCoordinates.clientX) {
-    magnifier.clientX += newCoordinates.clientX - oldCoordinates.clientX;
-  }
-  if (magnifier.clientY && newCoordinates.clientY && oldCoordinates.clientY) {
-    magnifier.clientY += newCoordinates.clientY - oldCoordinates.clientY;
-  }
+  magnifier.y! += newCoordinates.y! - oldCoordinates.y!;
+
+  magnifier.imageX! += newCoordinates.imageX! - oldCoordinates.imageX!;
+
+  magnifier.imageY! += newCoordinates.imageY! - oldCoordinates.imageY!;
+
+  magnifier.clientX! += newCoordinates.clientX! - oldCoordinates.clientX!;
+
+  magnifier.clientY! += newCoordinates.clientY! - oldCoordinates.clientY!;
+
   // Move the magnifier
   coordinates.value = { ...magnifier };
 }
